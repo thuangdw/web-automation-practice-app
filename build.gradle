@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // Selenium 4.x
+    implementation 'org.seleniumhq.selenium:selenium-java:4.21.0'
+
+    // WebDriverManager (automatically manages drivers)
+    implementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
+
+    // JUnit 5 (main test framework)
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
+    // TestNG (optional, if you want both)
+    testImplementation 'org.testng:testng:7.9.0'
+}
+
+test {
+    useJUnitPlatform()    // enable JUnit 5
+    // If you want TestNG, add:
+    // useTestNG()
+}
+
+sourceCompatibility = '17'
+targetCompatibility = '17'

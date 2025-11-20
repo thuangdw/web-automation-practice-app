@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Content</title>
+    <script>
+        function changeContent() {
+            document.getElementById("content").innerText =
+                "Updated at: " + new Date().toLocaleTimeString();
+        }
+    </script>
+</head>
+<body>
+<h2>Dynamic Content</h2>
+<div id="content">Original Content</div><br>
+<button onclick="changeContent()">Update</button>
+</body>
+</html>

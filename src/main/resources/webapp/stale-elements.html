@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stale Elements</title>
+    <script>
+        function replaceElement(){
+            const parent = document.getElementById("container");
+            parent.innerHTML = `<button id="newBtn">New Button</button>`;
+        }
+    </script>
+</head>
+<body>
+<h2>Stale Element Test</h2>
+
+<div id="container">
+    <button id="oldBtn" onclick="replaceElement()">Replace Me</button>
+</div>
+
+</body>
+</html>

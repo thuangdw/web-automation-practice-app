@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shadow DOM</title>
+</head>
+<body>
+<h2>Shadow DOM Example</h2>
+
+<div id="shadow-host"></div>
+
+<script>
+    const host = document.querySelector("#shadow-host");
+    const shadow = host.attachShadow({mode: 'open'});
+    shadow.innerHTML = `
+        <p>Inside Shadow DOM</p>
+        <input id="shadowInput" />
+    `;
+</script>
+
+</body>
+</html>

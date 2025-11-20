@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Waits</title>
+    <script>
+        function loadElement() {
+            setTimeout(() => {
+                document.getElementById("delayed").style.display = "block";
+            }, 3000);
+        }
+    </script>
+</head>
+<body onload="loadElement()">
+<h2>Waits Example</h2>
+<div id="delayed" style="display:none;">Loaded After 3 Seconds!</div>
+</body>
+</html>
