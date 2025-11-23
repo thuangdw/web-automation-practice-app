@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Alerts</title>
-    <script>
-        function showAlert(){ alert("Simple Alert!"); }
-        function showConfirm(){ confirm("Confirm?"); }
-        function showPrompt(){ prompt("Enter your name:"); }
-    </script>
-</head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Alerts - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>Alerts</h2>
-<button onclick="showAlert()">Alert</button>
-<button onclick="showConfirm()">Confirm</button>
-<button onclick="showPrompt()">Prompt</button>
+<h1>Alerts & Prompts</h1>
+
+<button id="btn-alert">Trigger Alert</button>
+<button id="btn-confirm">Trigger Confirm</button>
+<button id="btn-prompt">Trigger Prompt</button>
+
+<p id="out" role="status" aria-live="polite"></p>
+
+<script>
+    document.getElementById('btn-alert').addEventListener('click', ()=> alert('This is an alert'));
+    document.getElementById('btn-confirm').addEventListener('click', ()=>{
+      const ok = confirm('Please confirm');
+      document.getElementById('out').textContent = 'Confirm returned: ' + ok;
+    });
+    document.getElementById('btn-prompt').addEventListener('click', ()=>{
+      const val = prompt('Please enter a value', 'default');
+      document.getElementById('out').textContent = 'Prompt value: ' + val;
+    });
+
+    window.__testHelpers = {
+      getOut: ()=> document.getElementById('out').textContent
+    };
+</script>
 </body>
 </html>

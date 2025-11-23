@@ -1,8 +1,25 @@
 <!DOCTYPE html>
-<html>
-<head><title>Windows & Tabs</title></head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Windows & Tabs - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>Windows & Tabs</h2>
-<a id="newTab" href="https://example.com" target="_blank">Open New Tab</a>
+<h1>Windows / Tabs</h1>
+
+<button id="btn-open">Open Example.com in new tab</button>
+<button id="btn-open-popup">Open Pop-up Window</button>
+<button id="btn-open-multi">Open 3 tabs</button>
+
+<script>
+    document.getElementById('btn-open').addEventListener('click', ()=> window.open('https://example.com','_blank'));
+    document.getElementById('btn-open-popup').addEventListener('click', ()=> window.open('about:blank','popup','width=400,height=400'));
+    document.getElementById('btn-open-multi').addEventListener('click', ()=> {
+      window.open('https://example.com','_blank1');
+      window.open('https://example.org','_blank2');
+      window.open('https://example.net','_blank3');
+    });
+
+    window.__testHelpers = {
+      // no-op; Playwright will capture new page events
+    };
+</script>
 </body>
 </html>

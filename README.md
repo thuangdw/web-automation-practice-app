@@ -1,4 +1,4 @@
-
+[//]: # (current)
 # Web Automation Practice App
 
 This is a practice web application designed for learning and practicing Selenium (Java & Python) and Playwright automation. It includes pages for:
@@ -31,19 +31,6 @@ bash
 Copy code
 docker --version
 
-if not working: you can install podman for Mac book with Apple chip:
-
-brew install podman
-podman machine init
-podman machine start
-
-podman pull docker.io/library/amazoncorretto:17-alpine
-
-then in dockerfile:
-FROM docker.io/library/amazoncorretto:17-alpine
-
-in terminal: 
-podman pull docker.io/library/openjdk:17-jre-slim
 
 web-automation-practice-app — including:
 
@@ -52,6 +39,8 @@ web-automation-practice-app — including:
 ✔ How to navigate the practice pages
 ✔ Sample Java + Python Selenium test code
 ✔ Explanation of folder structure
+
+
 
 web-automation-practice-app
 
@@ -98,6 +87,31 @@ Go to:
 👉 http://localhost:8080
 
 You will see the homepage with links to all automation practice pages.
+
+Note: if the above steps failed to work for your environment, try something like the following:
+
+if not working: you can install podman for Mac book with Apple chip:
+
+brew install podman
+podman machine init
+podman machine start
+
+podman pull docker.io/library/amazoncorretto:17-alpine
+
+then update dockerfile with:
+
+FROM docker.io/library/amazoncorretto:17-alpine
+
+in terminal: 
+podman pull docker.io/library/openjdk:17-jre-slim
+
+docker build -t web-automation-practice-app .
+or for Mac with applie chip:
+
+podman build --platform=linux/amd64 -t web-automation-practice-app .
+
+podman run -p 8080:8080 web-automation-practice-app
+
 
 📁 3. Project Structure
 web-automation-practice-app/
@@ -340,3 +354,80 @@ Explore POM patterns
 Try same tests in Python
 
 Extend tests for Playwright later
+
+// updated:
+# Web Automation Practice App (Advanced HTML)
+
+This repo contains advanced practice HTML pages for Selenium & Playwright training.
+Run the app locally (served on port 8080) and use the Playwright and Selenium projects to test it.
+
+## Option A — Run with Docker (recommended)
+
+### Build
+```bash
+docker build -t web-automation-practice-app .
+Run
+bash
+Copy code
+docker run --rm -p 8080:8080 --name web-practice web-automation-practice-app
+Open: http://localhost:8080
+
+Option B — Run locally with http-server (Node)
+Install http-server if you don't have it:
+
+bash
+Copy code
+npm install -g http-server
+From repo root:
+
+bash
+Copy code
+http-server -p 8080 -a 127.0.0.1 --cors
+Open: http://localhost:8080
+
+Helpful notes for test automation
+The pages expose helper functions under window.__testHelpers for many test actions (e.g. toggling latency, fetching last download name, replacing DOM to create stale-element situations).
+
+If running in Docker, make sure your automation runner (Playwright / Selenium) can access http://localhost:8080. If running tests on host machine while container is used, http://localhost:8080 works; if running tests in another container, you may need to use host networking or container names.
+
+Playwright project
+See the playwright-automation-practice repo (separate folder). Run:
+
+bash
+Copy code
+cd ../playwright-automation-practice
+npm install
+npx playwright install
+npx playwright test
+Java Selenium project
+See the selenium-automation-practice folder:
+
+Maven: mvn test
+
+Gradle: ./gradlew test
+
+pgsql
+Copy code
+
+---
+
+## 2) Playwright + TypeScript project
+
+Create a folder `playwright-automation-practice/` with the structure below. I’ll include `package.json`, `playwright.config.ts`, `tsconfig.json`, POMs in `pages/` and tests in `tests/`.
+
+### `package.json`
+```json
+{
+  "name": "playwright-automation-practice",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "typescript": "^5.4.0"
+  }
+}

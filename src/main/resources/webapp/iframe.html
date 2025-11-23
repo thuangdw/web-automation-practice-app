@@ -1,8 +1,40 @@
 <!DOCTYPE html>
-<html>
-<head><title>IFrames</title></head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>IFrames - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>IFrame Test</h2>
-<iframe id="testFrame" src="iframe-inner.html" width="400" height="200"></iframe>
+<h1>Nested IFrames Demo</h1>
+
+<p>Outer frame loads inner frame after delay to simulate async iframe creation.</p>
+
+<iframe id="outer" srcdoc='
+    <html><body>
+      <h3>Outer Frame</h3>
+      <div id="outer-content">Waiting to create inner...</div>
+      <script>
+        setTimeout(()=> {
+          const inner = document.createElement("iframe");
+          inner.id = "innerFrame";
+          inner.srcdoc = "<html><body><h4>Inner Frame</h4><input id=\'innerInput\' type=\'text\'></body></html>";
+document.body.appendChild(inner);
+document.getElementById("outer-content").textContent = "Inner frame created";
+}, 800);
+</script>
+</body></html>' width="800" height="300"></iframe>
+
+<p>Use Playwright/Selenium frame switching to access <code>#innerInput</code> inside nested iframe.</p>
+
+<script>
+    window.__testHelpers = {
+      // helper that queries inner frame existence via top-level
+      innerExists: ()=> {
+        const outer = document.getElementById('outer');
+        try {
+          const doc = outer.contentDocument || outer.contentWindow.document;
+          const inner = doc.getElementById('innerFrame');
+          return !!inner;
+        } catch(e) { return false; }
+      }
+    };
+</script>
 </body>
 </html>

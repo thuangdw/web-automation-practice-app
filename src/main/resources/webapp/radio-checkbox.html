@@ -1,17 +1,56 @@
 <!DOCTYPE html>
-<html>
-<head><title>Radio Checkbox</title></head>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Radio & Checkbox - Advanced</title>
+    <style>
+        body{font-family:Arial;margin:20px}
+        .result{margin-top:12px;color:#065fd4}
+    </style>
+</head>
 <body>
-<h2>Radio & Checkbox</h2>
+<h1>Radio & Checkbox Advanced</h1>
 
-<h3>Gender</h3>
-<input type="radio" name="gender" value="male" id="male"> Male<br>
-<input type="radio" name="gender" value="female" id="female"> Female<br><br>
+<section>
+    <h2>Pick Gender (radio)</h2>
+    <label><input type="radio" name="gender" value="male" id="radio-male"> Male</label><br>
+    <label><input type="radio" name="gender" value="female" id="radio-female"> Female</label><br>
+    <label><input type="radio" name="gender" value="other" id="radio-other"> Other</label><br>
+    <button id="btn-radio-submit">Submit Gender</button>
+</section>
 
-<h3>Skills</h3>
-<input type="checkbox" id="java"> Java<br>
-<input type="checkbox" id="python"> Python<br>
-<input type="checkbox" id="selenium"> Selenium<br>
+<section style="margin-top:20px">
+    <h2>Hobbies (checkbox)</h2>
+    <label><input type="checkbox" id="chk-hiking"> Hiking</label><br>
+    <label><input type="checkbox" id="chk-reading"> Reading</label><br>
+    <label><input type="checkbox" id="chk-coding"> Coding</label><br>
+    <button id="btn-chk-submit">Submit Hobbies</button>
+</section>
 
+<div id="output" class="result" role="status" aria-live="polite"></div>
+
+<script>
+    document.getElementById('btn-radio-submit').addEventListener('click', () => {
+      const sel = document.querySelector('input[name="gender"]:checked');
+      document.getElementById('output').textContent = sel ? `Gender: ${sel.value}` : 'No gender selected';
+    });
+    document.getElementById('btn-chk-submit').addEventListener('click', () => {
+      const picked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(i=>i.id);
+      document.getElementById('output').textContent = 'Hobbies: ' + (picked.length ? picked.join(', ') : 'none');
+    });
+
+    // Helper for tests: toggle checkboxes programmatically
+    window.__testHelpers = {
+      setGender: (val) => {
+        const el = document.querySelector(`input[name="gender"][value="${val}"]`);
+        if (el) el.checked = true;
+      },
+      setHobby: (id, state) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = !!state;
+      },
+      getOutput: () => document.getElementById('output').textContent
+    };
+</script>
 </body>
 </html>

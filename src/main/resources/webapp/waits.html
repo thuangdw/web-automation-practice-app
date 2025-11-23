@@ -1,17 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Waits</title>
-    <script>
-        function loadElement() {
-            setTimeout(() => {
-                document.getElementById("delayed").style.display = "block";
-            }, 3000);
-        }
-    </script>
+    <meta charset="utf-8" />
+    <title>Waits - Advanced</title>
+    <style>body{font-family:Arial;margin:20px}.box{margin-top:12px}</style>
 </head>
-<body onload="loadElement()">
-<h2>Waits Example</h2>
-<div id="delayed" style="display:none;">Loaded After 3 Seconds!</div>
+<body>
+<h1>Waits & Dynamic Load</h1>
+
+<button id="btn-load">Start Loading</button>
+<div id="progress" class="box" aria-live="polite"></div>
+
+<button id="btn-toggle-fail" style="margin-top:10px">Toggle Random Fail</button>
+<p id="fail-state">Random Failure: off</p>
+
+<script>
+    let fail = false;
+    document.getElementById('btn-toggle-fail').addEventListener('click', () => {
+      fail = !fail;
+      document.getElementById('fail-state').textContent = 'Random Failure: ' + (fail? 'on':'off');
+    });
+
+    document.getElementById('btn-load').addEventListener('click', async () => {
+      const progress = document.getElementById('progress');
+      progress.textContent = 'Starting...';
+      for (let i=1;i<=5;i++){
+        await new Promise(r => setTimeout(r, 400));
+        if (fail && Math.random() < 0.3) { progress.textContent = 'Load failed at step ' + i; return; }
+        progress.textContent = `Loaded ${i}/5`;
+      }
+      progress.textContent = 'Complete';
+      // publish an eventual DOM node to test presenceOfElementLocated
+      const result = document.createElement('div');
+      result.id = 'delayedResult';
+      result.textContent = 'All done';
+      document.body.appendChild(result);
+    });
+
+    window.__testHelpers = {
+      toggleFail: ()=> { fail = !fail; document.getElementById('fail-state').textContent = 'Random Failure: ' + (fail? 'on':'off');},
+      getProgress: ()=> document.getElementById('progress').textContent
+    };
+</script>
 </body>
 </html>

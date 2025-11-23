@@ -1,28 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Automation Practice Home</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login - Web Automation Practice</title>
+    <style>
+        body { font-family: Inter, Arial, sans-serif; margin: 36px; color:#111 }
+        .container { max-width:480px; margin:0 auto; border:1px solid #e6e6e6; padding:20px; border-radius:8px; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+        label { display:block; margin-top:12px; font-weight:600; }
+        input[type="text"], input[type="password"] { width:100%; padding:8px; margin-top:6px; border:1px solid #cfcfcf; border-radius:4px; }
+        button { margin-top:16px; padding:10px 14px; border-radius:6px; border:none; background:#0366d6; color:#fff; cursor:pointer; }
+        .error { color: #b00020; margin-top:10px; }
+        .success { color: #0a7a3f; margin-top:10px; }
+        .meta { font-size:13px; color:#666; margin-top:8px; }
+        .spinner { display:inline-block; width:16px; height:16px; border-radius:50%; border:2px solid rgba(0,0,0,.1); border-top-color:#0366d6; animation:spin .8s linear infinite; margin-left:8px; vertical-align:middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .sr-only { position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
+    </style>
 </head>
 <body>
-<h1>Web Automation Practice - Home</h1>
-<ul>
-    <li><a href="login.html">Login Page</a></li>
-    <li><a href="forms.html">Forms</a></li>
-    <li><a href="radio-checkbox.html">Radio & Checkbox</a></li>
-    <li><a href="dropdowns.html">Dropdowns</a></li>
-    <li><a href="waits.html">Waits</a></li>
-    <li><a href="navigation.html">Navigation</a></li>
-    <li><a href="iframes.html">IFrames</a></li>
-    <li><a href="alerts.html">Alerts</a></li>
-    <li><a href="windows-tabs.html">Windows / Tabs</a></li>
-    <li><a href="shadow-dom.html">Shadow DOM</a></li>
-    <li><a href="dynamic-content.html">Dynamic Content</a></li>
-    <li><a href="drag-and-drop.html">Drag & Drop</a></li>
-    <li><a href="file-upload.html">File Upload</a></li>
-    <li><a href="file-download.html">File Download</a></li>
-    <li><a href="broken-images.html">Broken Images</a></li>
-    <li><a href="network-logs.html">Network Logs Test</a></li>
-    <li><a href="stale-elements.html">Stale Element Test</a></li>
-</ul>
+<main class="container" role="main" aria-labelledby="login-title">
+    <h1 id="login-title">Login</h1>
+
+    <form id="loginForm" aria-describedby="login-help" novalidate>
+        <label for="input-email">Email or Username</label>
+        <input id="input-email" name="email" type="text" autocomplete="username" aria-required="true" placeholder="admin or admin@test.com" />
+
+        <label for="input-password">Password</label>
+        <input id="input-password" name="password" type="password" autocomplete="current-password" aria-required="true" placeholder="password123" />
+
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button id="btn-login" type="button">Sign in</button>
+            <button id="btn-fast-login" type="button" title="Auto fills credentials for tests">Auto-fill</button>
+        </div>
+
+        <div id="feedback" role="status" aria-live="polite"></div>
+
+        <p class="meta" id="login-help">Use <code>admin</code> / <code>password123</code> or <code>admin@test.com</code> / <code>password123</code>.</p>
+    </form>
+
+    <section id="extra" style="margin-top:14px">
+        <button id="btn-simulate-latency">Toggle Simulated Latency</button>
+        <span id="latency-state" class="meta">Latency: <strong id="latency-value">off</strong></span>
+    </section>
+</main>
+
+<script>
+    // Simulated server-mode toggle used for tests
+    let simulateLatency = false;
+
+    const feedback = document.getElementById('feedback');
+    const inputEmail = document.getElementById('input-email');
+    const inputPassword = document.getElementById('input-password');
+    const btnLogin = document.getElementById('btn-login');
+    const btnFast = document.getElementById('btn-fast-login');
+    const btnLatency = document.getElementById('btn-simulate-latency');
+    const latencyValue = document.getElementById('latency-value');
+
+    function setFeedback(msg, type) {
+      feedback.innerHTML = '';
+      if (!msg) return;
+      const p = document.createElement('p');
+      p.textContent = msg;
+      p.className = type === 'error' ? 'error' : 'success';
+      feedback.appendChild(p);
+    }
+
+    function validateInputs() {
+      const email = inputEmail.value.trim();
+      const pass = inputPassword.value;
+      const errors = [];
+      if (!email) errors.push('Email/username is required.');
+      if (!pass) errors.push('Password is required.');
+      if (errors.length) {
+        setFeedback(errors.join(' '), 'error');
+        return false;
+      }
+      setFeedback('', '');
+      return true;
+    }
+
+    function mockServerLogin({ user, pass }) {
+      // returns a Promise that resolves/rejects to simulate server behavior
+      const latency = simulateLatency ? 1200 + Math.floor(Math.random() * 800) : 140;
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // simple auth logic
+          const normalized = (user || '').toString().toLowerCase();
+          const okUsers = ['admin', 'admin@test.com'];
+          if (okUsers.includes(normalized) && pass === 'password123') {
+            resolve({ ok: true, redirect: 'index.html', token: 'fake-jwt-token' });
+          } else {
+            reject({ ok: false, message: 'Invalid credentials' });
+          }
+        }, latency);
+      });
+    }
+
+    async function handleLogin() {
+      if (!validateInputs()) return;
+      // show spinner
+      const spinner = document.createElement('span');
+      spinner.className = 'spinner';
+      btnLogin.appendChild(spinner);
+
+      try {
+        const resp = await mockServerLogin({ user: inputEmail.value, pass: inputPassword.value });
+        setFeedback('Login successful! Redirecting...', 'success');
+        // expose token for tests
+        window.__lastLoginToken = resp.token;
+        // trigger synthetic event for tests
+        window.dispatchEvent(new CustomEvent('app:loginSuccess', { detail: resp }));
+        // redirect
+        setTimeout(() => { window.location.href = resp.redirect; }, 300);
+      } catch (err) {
+        setFeedback(err.message || 'Login failed', 'error');
+        window.__lastLoginError = err;
+        window.dispatchEvent(new CustomEvent('app:loginFailure', { detail: err }));
+      } finally {
+        // remove spinner safely
+        const s = btnLogin.querySelector('.spinner');
+        if (s) s.remove();
+      }
+    }
+
+    btnLogin.addEventListener('click', handleLogin);
+
+    btnFast.addEventListener('click', () => {
+      inputEmail.value = 'admin';
+      inputPassword.value = 'password123';
+      setFeedback('Auto-filled credentials', 'success');
+    });
+
+    btnLatency.addEventListener('click', () => {
+      simulateLatency = !simulateLatency;
+      latencyValue.textContent = simulateLatency ? 'on' : 'off';
+      setFeedback('Simulated latency is ' + (simulateLatency ? 'enabled' : 'disabled'), 'success');
+    });
+
+    // Expose convenience helpers for testing
+    window.__testHelpers = {
+      setLatency: (on) => {
+        simulateLatency = !!on;
+        latencyValue.textContent = simulateLatency ? 'on' : 'off';
+      },
+      lastToken: () => window.__lastLoginToken || null,
+      lastError: () => window.__lastLoginError || null,
+      submit: () => handleLogin()
+    };
+
+    // accessibility: focus email on load
+    window.addEventListener('load', () => {
+      inputEmail.focus();
+    });
+</script>
 </body>
 </html>

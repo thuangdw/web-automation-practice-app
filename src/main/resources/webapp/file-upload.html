@@ -1,9 +1,31 @@
 <!DOCTYPE html>
-<html>
-<head><title>File Upload</title></head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>File Upload - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>File Upload</h2>
-<input id="uploadFile" type="file">
-<button id="uploadBtn">Upload</button>
+<h1>File Upload</h1>
+
+<input id="fileInput" type="file" />
+<button id="btn-upload">Upload</button>
+<p id="upload-status" role="status"></p>
+
+<script>
+    document.getElementById('btn-upload').addEventListener('click', async () => {
+      const f = document.getElementById('fileInput').files[0];
+      if (!f) { document.getElementById('upload-status').textContent = 'No file selected'; return; }
+      // simulate server-side upload delay
+      document.getElementById('upload-status').textContent = 'Uploading...';
+      await new Promise(r=>setTimeout(r, 600));
+      // fake validation: reject >1MB
+      if (f.size && f.size > 1024*1024) {
+        document.getElementById('upload-status').textContent = 'File too large';
+      } else {
+        document.getElementById('upload-status').textContent = 'Uploaded: ' + f.name;
+      }
+    });
+
+    window.__testHelpers = {
+      getStatus: ()=> document.getElementById('upload-status').textContent
+    };
+</script>
 </body>
 </html>

@@ -1,1 +1,193 @@
-<html><body><div id="dynamic-1">Dynamic 1</div><div id="dynamic-2">Dynamic 2</div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dynamic Content - Advanced</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #container { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; }
+        .item { padding: 6px; border-bottom: 1px solid #eee; }
+        .error { color: red; font-weight: bold; }
+        #done-marker { color: green; font-weight: bold; }
+        .controls button { margin-right: 10px; }
+        pre { background: #f7f7f7; padding: 10px; }
+    </style>
+</head>
+
+<body>
+<h1>Dynamic Content (Advanced)</h1>
+
+<p>
+    This page is designed for **senior-level automation practice** with dynamic DOM updates,
+    random failures, race conditions, and delayed loads.
+</p>
+
+<div class="controls">
+    <button id="btn-add">Add Items</button>
+    <button id="btn-random-fail">Toggle Random Fail Mode</button>
+    <button id="btn-replace-dom">Replace DOM</button>
+    <button id="btn-race">Start Race Condition Update</button>
+    <button id="btn-json">Generate JSON Payload</button>
+</div>
+
+<p>
+    <strong>Status:</strong> <span id="status">Idle</span>
+</p>
+
+<div id="container"></div>
+
+<div id="done-marker" style="display:none;">✔ Done</div>
+
+<div id="error-box" class="error" style="display:none;"></div>
+
+<h3>JSON Output:</h3>
+<pre id="json-box">{}</pre>
+
+<script>
+    /************************************************************
+     * INTERNAL STATE
+     ***********************************************************/
+    let itemCounter = 0;
+    let randomFailMode = false;
+
+    /************************************************************
+     * DOM HELPERS
+     ***********************************************************/
+    const statusBox = document.getElementById('status');
+    const container = document.getElementById('container');
+    const errorBox = document.getElementById('error-box');
+    const doneMarker = document.getElementById('done-marker');
+    const jsonBox = document.getElementById('json-box');
+
+    function setStatus(msg) { statusBox.textContent = msg; }
+    function showError(msg) {
+      errorBox.style.display = 'block';
+      errorBox.textContent = msg;
+    }
+    function clearError() {
+      errorBox.style.display = 'none';
+      errorBox.textContent = '';
+    }
+
+    function addItem(text) {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.id = `item-${++itemCounter}`;
+      div.textContent = text;
+      container.appendChild(div);
+    }
+
+    /************************************************************
+     * MAIN ACTION: ADD ITEMS (with random delay)
+     ***********************************************************/
+    document.getElementById('btn-add').addEventListener('click', () => {
+      clearError();
+      doneMarker.style.display = 'none';
+      setStatus('Adding items...');
+
+      const delay = Math.floor(Math.random() * 1500) + 300;
+      setTimeout(() => {
+
+        if (randomFailMode && Math.random() > 0.65) {
+          showError('Random failure occurred while adding items.');
+          setStatus('Failed');
+          return;
+        }
+
+        for (let i = 0; i < 3; i++) {
+          addItem(`Dynamic Item ${itemCounter + 1}`);
+        }
+
+        setStatus('Items added');
+        doneMarker.style.display = 'inline';
+
+      }, delay);
+    });
+
+    /************************************************************
+     * TOGGLE FAIL MODE
+     ***********************************************************/
+    document.getElementById('btn-random-fail').addEventListener('click', () => {
+      randomFailMode = !randomFailMode;
+      clearError();
+      doneMarker.style.display = 'none';
+      setStatus(randomFailMode ? 'RandomFail Mode: ON' : 'RandomFail Mode: OFF');
+    });
+
+    /************************************************************
+     * REPLACE ENTIRE DOM (simulate stale elements)
+     ***********************************************************/
+    document.getElementById('btn-replace-dom').addEventListener('click', () => {
+      clearError();
+      setStatus('Replacing DOM...');
+      container.innerHTML = '';
+
+      // new fresh content
+      for (let i = 0; i < 5; i++) {
+        addItem(`Fresh Item ${i + 1}`);
+      }
+
+      setStatus('DOM Replaced');
+    });
+
+    /************************************************************
+     * RACE CONDITION SIMULATION
+     ***********************************************************/
+    document.getElementById('btn-race').addEventListener('click', () => {
+      clearError();
+      doneMarker.style.display = 'none';
+      setStatus('Race Started');
+
+      // Race: two async operations updating status at different times
+      Promise.resolve().then(() => {
+        setTimeout(() => { setStatus('Race Update A'); }, 200);
+      });
+
+      Promise.resolve().then(() => {
+        setTimeout(() => { setStatus('Race Update B'); }, 100);
+      });
+
+      // Final callback
+      setTimeout(() => {
+        setStatus('Race Completed');
+        doneMarker.style.display = 'inline';
+      }, 350);
+    });
+
+    /************************************************************
+     * GENERATE JSON PAYLOAD
+     ***********************************************************/
+    document.getElementById('btn-json').addEventListener('click', () => {
+      clearError();
+      doneMarker.style.display = 'none';
+      setStatus('Generating JSON...');
+
+      const payload = {
+        timestamp: Date.now(),
+        items: Array.from(document.querySelectorAll('.item')).map(el => ({
+          id: el.id,
+          text: el.textContent,
+        }))
+      };
+
+      jsonBox.textContent = JSON.stringify(payload, null, 2);
+      setStatus('JSON Ready');
+      doneMarker.style.display = 'inline';
+    });
+
+    /************************************************************
+     * EXPOSE TEST HELPERS FOR PLAYWRIGHT & SELENIUM
+     ***********************************************************/
+    window.__testHelpers = {
+      randomFailModeEnabled: () => randomFailMode,
+      triggerDomReplace: () => document.getElementById('btn-replace-dom').click(),
+      triggerAdd: () => document.getElementById('btn-add').click(),
+      getItemCount: () => document.querySelectorAll('.item').length,
+      readStatus: () => document.getElementById('status').textContent,
+      race: () => document.getElementById('btn-race').click(),
+      json: () => document.getElementById('btn-json').click()
+    };
+</script>
+
+</body>
+</html>

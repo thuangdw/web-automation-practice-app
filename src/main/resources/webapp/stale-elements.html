@@ -1,20 +1,40 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Stale Elements</title>
-    <script>
-        function replaceElement(){
-            const parent = document.getElementById("container");
-            parent.innerHTML = `<button id="newBtn">New Button</button>`;
-        }
-    </script>
-</head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Stale Element - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>Stale Element Test</h2>
+<h1>Stale Element Testing</h1>
 
-<div id="container">
-    <button id="oldBtn" onclick="replaceElement()">Replace Me</button>
+<div id="list">
+    <p id="item-1">Item 1</p>
+    <p id="item-2">Item 2</p>
+    <p id="item-3">Item 3</p>
 </div>
 
+<button id="btn-replace">Replace List Node</button>
+<button id="btn-update">Update Item Text</button>
+<p id="out"></p>
+
+<script>
+    document.getElementById('btn-replace').addEventListener('click', ()=> {
+      const old = document.getElementById('list');
+      const parent = old.parentNode;
+      const newNode = document.createElement('div');
+      newNode.id = 'list';
+      newNode.innerHTML = '<p id="item-1">Item 1 (new)</p><p id="item-2">Item 2 (new)</p><p id="item-3">Item 3 (new)</p>';
+      parent.replaceChild(newNode, old);
+      document.getElementById('out').textContent = 'List replaced';
+    });
+
+    document.getElementById('btn-update').addEventListener('click', ()=> {
+      const el = document.getElementById('item-2');
+      if (el) el.textContent = 'Item 2 updated at ' + new Date().toISOString();
+    });
+
+    window.__testHelpers = {
+      replaceList: ()=> document.getElementById('btn-replace').click(),
+      updateItem: ()=> document.getElementById('btn-update').click(),
+      readItem2: ()=> (document.getElementById('item-2') && document.getElementById('item-2').textContent) || null
+    };
+</script>
 </body>
 </html>

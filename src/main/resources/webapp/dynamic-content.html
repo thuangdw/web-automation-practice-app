@@ -1,17 +1,36 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Dynamic Content</title>
-    <script>
-        function changeContent() {
-            document.getElementById("content").innerText =
-                "Updated at: " + new Date().toLocaleTimeString();
-        }
-    </script>
-</head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Dynamic Content - Advanced</title><style>body{font-family:Arial;margin:20px}.item{padding:6px;border-bottom:1px solid #eee}</style></head>
 <body>
-<h2>Dynamic Content</h2>
-<div id="content">Original Content</div><br>
-<button onclick="changeContent()">Update</button>
+<h1>Dynamic Content / Incremental Render</h1>
+<button id="btn-add">Add Items Gradually</button>
+<button id="btn-random-fail">Toggle Random Failures</button>
+<div id="container" style="margin-top:12px"></div>
+<p id="status"></p>
+
+<script>
+    let fail = false;
+    document.getElementById('btn-random-fail').addEventListener('click', ()=> { fail = !fail; document.getElementById('status').textContent = 'Random fail: '+fail; });
+
+    document.getElementById('btn-add').addEventListener('click', async () => {
+      const container = document.getElementById('container');
+      container.innerHTML = '';
+      for (let i=1;i<=10;i++){
+        await new Promise(r => setTimeout(r, 200 + (i*20)));
+        if (fail && Math.random() < 0.2) {
+          const err = document.createElement('div'); err.className='item'; err.textContent = 'FAILED at ' + i; err.style.color='red'; container.appendChild(err); break;
+        }
+        const d = document.createElement('div'); d.className='item'; d.id='item-'+i; d.textContent = 'Item '+i; container.appendChild(d);
+      }
+      // add final marker
+      const done = document.createElement('div'); done.id='done-marker'; done.textContent='DONE'; container.appendChild(done);
+    });
+
+    window.__testHelpers = {
+      toggleFail: ()=> { fail = !fail; document.getElementById('status').textContent = 'Random fail: '+fail;},
+      getItemsCount: ()=> document.querySelectorAll('#container .item').length,
+      hasDoneMarker: ()=> !!document.getElementById('done-marker')
+    };
+</script>
 </body>
 </html>

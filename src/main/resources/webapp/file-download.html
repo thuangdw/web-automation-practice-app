@@ -1,8 +1,29 @@
 <!DOCTYPE html>
-<html>
-<head><title>File Download</title></head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>File Download - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>File Download</h2>
-<a id="downloadFile" href="/sample.txt" download>Download File</a>
+<h1>File Download</h1>
+<button id="btn-gen">Generate Download</button>
+<a id="dl" style="display:none"></a>
+<p id="dl-status"></p>
+
+<script>
+    document.getElementById('btn-gen').addEventListener('click', () => {
+      const blob = new Blob(['Sample file content at ' + new Date().toISOString()], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.getElementById('dl');
+      a.href = url;
+      a.download = 'sample-' + Date.now() + '.txt';
+      a.style.display = 'inline';
+      a.textContent = 'Click to download: ' + a.download;
+      document.getElementById('dl-status').textContent = 'Ready';
+      // expose last filename for tests
+      window.__lastDownload = a.download;
+    });
+
+    window.__testHelpers = {
+      lastDownload: ()=> window.__lastDownload || null
+    };
+</script>
 </body>
 </html>

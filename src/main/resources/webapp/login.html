@@ -4,11 +4,31 @@
     <title>Login Page</title>
 </head>
 <body>
-<h2>Login</h2>
-<form action="/login" method="post">
-    Username: <input id="username" name="username"><br><br>
-    Password: <input id="password" name="password" type="password"><br><br>
-    <button id="loginBtn" type="submit">Login</button>
+<h1>Login</h1>
+
+<form id="loginForm">
+    <label>Username:</label>
+    <input id="username" type="text"><br><br>
+
+    <label>Password:</label>
+    <input id="password" type="password"><br><br>
+
+    <button id="loginBtn" type="button" onclick="login()">Login</button>
 </form>
+
+<p id="loginMessage"></p>
+
+<script>
+function login() {
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+
+    if (user === "admin" && pass === "password123") {
+        document.getElementById("loginMessage").innerText = "Login Successful";
+    } else {
+        document.getElementById("loginMessage").innerText = "Invalid Credentials";
+    }
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Drag & Drop - Advanced</title><style>body{font-family:Arial;margin:20px}#drag{width:120px;height:60px;background:#4fc3f7;cursor:grab}#drop{width:220px;height:160px;border:2px dashed #bbb;margin-top:12px;display:flex;align-items:center;justify-content:center}</style></head>
+<body>
+<h1>Advanced Drag & Drop</h1>
+<div id="drag" draggable="true">Drag me</div>
+<div id="drop">Drop here</div>
+<p id="drop-result"></p>
+
+<script>
+    const drag = document.getElementById('drag');
+    const drop = document.getElementById('drop');
+
+    drag.addEventListener('dragstart', (e)=> {
+      e.dataTransfer.setData('text/plain','payload-1');
+    });
+
+    drop.addEventListener('dragover', (e)=> e.preventDefault());
+    drop.addEventListener('drop', (e)=> {
+      e.preventDefault();
+      const data = e.dataTransfer.getData('text/plain');
+      drop.style.background = '#c8e6c9';
+      document.getElementById('drop-result').textContent = 'Dropped payload: ' + data;
+    });
+
+    // programmatic helper: dispatch custom drag events for complex tests
+    window.__testHelpers = {
+      dispatchHtml5Drop: (targetSelector) => {
+        const dt = new DataTransfer();
+        dt.setData('text/plain','payload-1');
+        const el = document.querySelector(targetSelector);
+        const evt = new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true});
+        el.dispatchEvent(evt);
+      }
+    };
+</script>
+</body>
+</html>

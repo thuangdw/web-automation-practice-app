@@ -1,1 +1,136 @@
-<html><body><div id="drag-source">Drag me</div><div id="drop-target">Drop here</div><div id="hover">Hover me</div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Advanced Mouse Actions</title>
+    <style>
+        body { font-family: Arial; padding: 30px; }
+        #dragSource, #dropTarget {
+          width: 180px; height: 80px;
+          border: 2px dashed #777;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 40px;
+          font-weight: bold;
+          user-select: none;
+        }
+        #dropTarget {
+          border-color: green;
+        }
+        #trackingArea {
+          width: 500px; height: 200px;
+          border: 2px solid #444;
+          margin-top: 20px;
+          background: #fafafa;
+          position: relative;
+        }
+        #hoverMenu { display: none; background: #ddd; padding: 10px; width: 150px; }
+        #hoverArea { width: 180px; height: 50px; border: 1px solid #ccc; margin-top: 20px; }
+        #canvas { border: 1px solid black; margin-top: 20px; }
+    </style>
+</head>
+
+<body>
+<h1>Advanced Mouse Actions</h1>
+<p>This page supports drag-and-drop, drawing, mouse tracking, hover, context menu, triple click, and long press.</p>
+
+<h2>1. Drag & Drop</h2>
+<div id="dragSource" draggable="true">Drag Me</div>
+<div id="dropTarget">Drop Here</div>
+<p id="dropStatus"></p>
+
+<h2>2. Mouse Position Tracking</h2>
+<div id="trackingArea"></div>
+<p id="coords">Move the mouse inside the box above.</p>
+
+<h2>3. Hover Menu</h2>
+<div id="hoverArea">Hover over me</div>
+<div id="hoverMenu">Hover menu opened!</div>
+
+<h2>4. Canvas Drawing (mousedown + move)</h2>
+<canvas id="canvas" width="400" height="250"></canvas>
+
+<h2>5. Special Click Tests</h2>
+<button id="btnDouble">Double-click me</button>
+<p id="doubleStatus"></p>
+
+<button id="btnTriple">Triple-click me</button>
+<p id="tripleStatus"></p>
+
+<button id="btnHold">Long Press (600ms)</button>
+<p id="holdStatus"></p>
+
+<script>
+    /***** DRAG AND DROP *****/
+    const dragSource = document.getElementById("dragSource");
+    const dropTarget = document.getElementById("dropTarget");
+    const dropStatus = document.getElementById("dropStatus");
+
+    dragSource.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", "drag-item");
+    });
+
+    dropTarget.addEventListener("dragover", e => e.preventDefault());
+    dropTarget.addEventListener("drop", e => {
+      e.preventDefault();
+      dropStatus.textContent = "Drop successful!";
+    });
+
+    /***** MOUSE TRACKING *****/
+    const trackingArea = document.getElementById("trackingArea");
+    const coords = document.getElementById("coords");
+    trackingArea.addEventListener("mousemove", e => {
+      const rect = trackingArea.getBoundingClientRect();
+      coords.textContent = `X: ${e.clientX - rect.left}, Y: ${e.clientY - rect.top}`;
+    });
+
+    /***** HOVER MENU *****/
+    const hoverArea = document.getElementById("hoverArea");
+    const hoverMenu = document.getElementById("hoverMenu");
+
+    hoverArea.addEventListener("mouseenter", () => hoverMenu.style.display = "block");
+    hoverArea.addEventListener("mouseleave", () => hoverMenu.style.display = "none");
+
+    /***** CANVAS DRAWING *****/
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    canvas.addEventListener("mousedown", () => drawing = true);
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mousemove", (e) => {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.fillRect(e.clientX - rect.left, e.clientY - rect.top, 3, 3);
+    });
+
+    /***** DOUBLE CLICK *****/
+    document.getElementById("btnDouble").ondblclick = () => {
+      document.getElementById("doubleStatus").textContent = "Double-click detected!";
+    };
+
+    /***** TRIPLE CLICK *****/
+    let tripleClicks = 0;
+    document.getElementById("btnTriple").addEventListener("click", () => {
+      tripleClicks++;
+      setTimeout(() => tripleClicks = 0, 350);
+
+      if (tripleClicks === 3) {
+        document.getElementById("tripleStatus").textContent = "Triple-click detected!";
+        tripleClicks = 0;
+      }
+    });
+
+    /***** LONG PRESS *****/
+    let holdTimer;
+    document.getElementById("btnHold").addEventListener("mousedown", () => {
+      holdTimer = setTimeout(() => {
+        document.getElementById("holdStatus").textContent = "Long press detected!";
+      }, 600);
+    });
+
+    document.getElementById("btnHold").addEventListener("mouseup", () => clearTimeout(holdTimer));
+</script>
+</body>
+</html>

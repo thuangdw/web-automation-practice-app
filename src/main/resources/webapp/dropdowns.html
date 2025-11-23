@@ -1,15 +1,75 @@
 <!DOCTYPE html>
-<html>
-<head><title>Dropdowns</title></head>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Dropdowns - Advanced</title>
+    <style>body{font-family:Arial;margin:20px}.result{margin-top:12px}</style>
+</head>
 <body>
-<h2>Dropdowns</h2>
+<h1>Dropdowns</h1>
 
-<select id="country">
-    <option value="">Select…</option>
-    <option value="usa">USA</option>
-    <option value="canada">Canada</option>
-    <option value="uk">UK</option>
-</select>
+<div>
+    <label for="country">Country</label>
+    <select id="country">
+        <option value="">-- choose --</option>
+        <option value="us">United States</option>
+        <option value="uk">United Kingdom</option>
+        <option value="in">India</option>
+    </select>
+</div>
 
+<div style="margin-top:12px">
+    <label for="state">State/Region</label>
+    <select id="state" disabled>
+        <option value="">-- choose country first --</option>
+    </select>
+</div>
+
+<div style="margin-top:12px">
+    <label for="multi-city">Cities (multi)</label>
+    <select id="multi-city" multiple size="5">
+        <option value="ny">New York</option>
+        <option value="la">Los Angeles</option>
+        <option value="lon">London</option>
+        <option value="mum">Mumbai</option>
+        <option value="del">Delhi</option>
+    </select>
+</div>
+
+<button id="btn-do">Submit</button>
+
+<div id="result" class="result" role="status" aria-live="polite"></div>
+
+<script>
+    const country = document.getElementById('country');
+    const state = document.getElementById('state');
+    country.addEventListener('change', () => {
+      state.disabled = false;
+      state.innerHTML = '<option value="">-- choose --</option>';
+      if (country.value === 'us') {
+        state.innerHTML += '<option value="ny">New York</option><option value="ca">California</option>';
+      } else if (country.value === 'uk') {
+        state.innerHTML += '<option value="ln">London</option><option value="mn">Manchester</option>';
+      } else if (country.value === 'in') {
+        state.innerHTML += '<option value="mh">Maharashtra</option><option value="dl">Delhi</option>';
+      }
+    });
+
+    document.getElementById('btn-do').addEventListener('click', () => {
+      const c = country.value;
+      const s = state.value;
+      const cities = Array.from(document.getElementById('multi-city').selectedOptions).map(o=>o.value);
+      document.getElementById('result').textContent = `Country=${c}, State=${s}, Cities=[${cities.join(',')}]`;
+    });
+
+    window.__testHelpers = {
+      setCountry: (val) => { country.value = val; country.dispatchEvent(new Event('change')); },
+      selectMultiCities: (vals) => {
+        const sel = document.getElementById('multi-city');
+        Array.from(sel.options).forEach(o => o.selected = vals.includes(o.value));
+      },
+      getResult: () => document.getElementById('result').textContent
+    };
+</script>
 </body>
 </html>

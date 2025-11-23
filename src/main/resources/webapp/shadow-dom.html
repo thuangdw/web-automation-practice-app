@@ -1,21 +1,44 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Shadow DOM</title>
-</head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Shadow DOM - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>Shadow DOM Example</h2>
-
-<div id="shadow-host"></div>
+<h1>Deep Shadow DOM</h1>
+<div id="host1"></div>
 
 <script>
-    const host = document.querySelector("#shadow-host");
-    const shadow = host.attachShadow({mode: 'open'});
-    shadow.innerHTML = `
-        <p>Inside Shadow DOM</p>
-        <input id="shadowInput" />
-    `;
-</script>
+    const host1 = document.getElementById('host1');
+    const root1 = host1.attachShadow({mode:'open'});
+    root1.innerHTML = `<div id='level1'>Level 1 <span id='l1'>-</span></div><div id='inner-host'></div>`;
 
+    const innerHost = root1.querySelector('#inner-host');
+    const root2 = document.createElement('div');
+    innerHost.appendChild(root2);
+    const shadow2 = root2.attachShadow({mode:'open'});
+    shadow2.innerHTML = `<div id='level2'>Level 2 <span id='l2'>-</span></div><div id='deep-host'></div>`;
+
+    const deepHost = shadow2.querySelector('#deep-host');
+    const deep = document.createElement('div');
+    deepHost.appendChild(deep);
+    const root3 = deep.attachShadow({mode:'open'});
+    root3.innerHTML = `<input id='deepInput' placeholder='deep value'><button id='deepBtn'>Click Deep</button><p id='deepOut'></p>`;
+
+    // expose helper
+    window.__testHelpers = {
+      setDeepValue: (val) => {
+        const valIn = root3.getElementById('deepInput');
+        if (valIn) valIn.value = val;
+      },
+      clickDeep: () => {
+        const btn = root3.getElementById('deepBtn');
+        if (btn) btn.click();
+      },
+      readDeepOut: ()=> root3.getElementById('deepOut')?.textContent
+    };
+
+    // set behavior
+    root3.getElementById('deepBtn').addEventListener('click', ()=> {
+      root3.getElementById('deepOut').textContent = 'Deep says: ' + root3.getElementById('deepInput').value;
+    });
+</script>
 </body>
 </html>

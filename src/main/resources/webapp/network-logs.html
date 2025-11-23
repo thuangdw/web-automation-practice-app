@@ -1,8 +1,54 @@
 <!DOCTYPE html>
-<html>
-<head><title>Network Logs</title></head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Network Logs Test - Advanced</title><style>body{font-family:Arial;margin:20px}</style></head>
 <body>
-<h2>Network Log Test</h2>
-<button id="fetchBtn" onclick="fetch('/api/test')">Make API Request</button>
+<h1>Network Logs Test</h1>
+
+<label>Endpoint:
+    <select id="endpoint">
+        <option value="https://jsonplaceholder.typicode.com/todos/1">Public Todo</option>
+        <option value="/fake-api/success">Local Fake Success</option>
+        <option value="/fake-api/fail">Local Fake Fail</option>
+    </select>
+</label>
+<button id="btn-fetch">Fetch</button>
+
+<pre id="result" style="background:#f9f9f9;padding:12px"></pre>
+
+<script>
+    document.getElementById('btn-fetch').addEventListener('click', async () => {
+      const url = document.getElementById('endpoint').value;
+      try {
+        const res = await fetch(url);
+        const txt = await res.text();
+        document.getElementById('result').textContent = `Status:${res.status}\n\n${txt}`;
+      } catch(e) {
+        document.getElementById('result').textContent = 'Fetch failed: ' + e.message;
+      }
+    });
+
+    // local endpoints for test harness when run without network
+    if (!window.__fakeApiInstalled) {
+      // intercept fetch calls to /fake-api/*
+      const originalFetch = window.fetch;
+      window.fetch = async function(resource, opts) {
+        if (typeof resource === 'string' && resource.startsWith('/fake-api/')) {
+          const mode = resource.split('/').pop();
+          if (mode === 'success') {
+            return new Response(JSON.stringify({ ok:true, msg:'local success' }), { status:200, headers:{'Content-Type':'application/json'} });
+          } else {
+            return new Response('local failure', { status:500, headers:{'Content-Type':'text/plain'} });
+          }
+        }
+        return originalFetch.apply(this, arguments);
+      };
+      window.__fakeApiInstalled = true;
+    }
+
+    window.__testHelpers = {
+      getResultText: ()=> document.getElementById('result').textContent,
+      setEndpoint: (val)=> { document.getElementById('endpoint').value = val; }
+    };
+</script>
 </body>
 </html>

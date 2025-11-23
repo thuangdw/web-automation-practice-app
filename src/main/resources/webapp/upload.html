@@ -1,1 +1,23 @@
-<html><body><input type="file" id="fileInput"/></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload</title>
+</head>
+<body>
+<h1>File Upload</h1>
+
+<input type="file" id="fileInput">
+<button onclick="upload()">Upload</button>
+
+<p id="result"></p>
+
+<script>
+function upload() {
+    const file = document.getElementById("fileInput").files[0];
+    document.getElementById("result").innerText =
+        file ? "Uploaded: " + file.name : "No file selected";
+}
+</script>
+
+</body>
+</html>

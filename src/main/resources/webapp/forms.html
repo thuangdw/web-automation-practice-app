@@ -1,12 +1,200 @@
 <!DOCTYPE html>
-<html>
-<head><title>Forms</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Forms</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .error { color: red; display: none; }
+        .hidden { display: none; }
+        .step { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+        input[disabled] { background-color: #eee; }
+        .counter { font-size: 12px; color: gray; }
+        #shadow-host { margin-top: 20px; padding: 10px; border: 1px solid #aaa; }
+    </style>
+</head>
 <body>
-<h2>Form Elements</h2>
-<form>
-    <label>Name: </label><input id="nameField"><br><br>
-    <label>Email: </label><input id="emailField" type="email"><br><br>
-    <button id="submitBtn">Submit</button>
-</form>
+
+<h2>Advanced Forms</h2>
+
+<!-- Step 1: Simple Validation -->
+<div class="step">
+    <h3>Step 1: Basic Info</h3>
+
+    <label>Username (required, min 5 chars):</label><br>
+    <input id="username" type="text">
+    <div id="username-error" class="error">Username must be at least 5 characters.</div>
+    <div class="counter" id="username-counter">0 / 20</div>
+    <br><br>
+
+    <label>Email (dynamic validation):</label><br>
+    <input id="email" type="text">
+    <div id="email-error" class="error">Invalid email format.</div>
+    <br><br>
+
+    <button id="step1-next" disabled>Next</button>
+</div>
+
+<!-- Step 2: Dependent Dropdowns + Enabling Fields -->
+<div class="step hidden" id="step2">
+    <h3>Step 2: Country & City</h3>
+
+    <label>Country:</label>
+    <select id="country">
+        <option value="">Select...</option>
+        <option value="US">United States</option>
+        <option value="CA">Canada</option>
+    </select>
+    <br><br>
+
+    <label>City (auto-enabled):</label>
+    <select id="city" disabled>
+        <option value="">Select...</option>
+    </select>
+    <br><br>
+
+    <button id="step2-next" disabled>Next</button>
+</div>
+
+<!-- Step 3: Auto-complete + Delayed Element -->
+<div class="step hidden" id="step3">
+    <h3>Step 3: Search Field (Auto-complete)</h3>
+
+    <label>Search for a programming language:</label><br>
+    <input id="search-box" type="text" autocomplete="off">
+    <ul id="suggestions" class="hidden"></ul>
+
+    <br><br>
+
+    <div id="delayed-section" class="hidden">
+        <label>Delayed Field:</label>
+        <input id="delayed-input" type="text">
+    </div>
+
+    <button id="step3-next">Finish</button>
+</div>
+
+<!-- File Upload -->
+<div class="step">
+    <h3>File Upload</h3>
+    <input id="upload" type="file">
+</div>
+
+<!-- Shadow DOM Component -->
+<h3>Shadow DOM Form Section</h3>
+<div id="shadow-host"></div>
+
+<script>
+    // Character Counter + Username Validation
+    const username = document.getElementById("username");
+    const usernameError = document.getElementById("username-error");
+    const usernameCounter = document.getElementById("username-counter");
+    const step1Next = document.getElementById("step1-next");
+
+    username.addEventListener("input", () => {
+      usernameCounter.textContent = `${username.value.length} / 20`;
+
+      if (username.value.length >= 5) {
+        usernameError.style.display = "none";
+      } else {
+        usernameError.style.display = "block";
+      }
+
+      validateStep1();
+    });
+
+    // Email validation
+    const email = document.getElementById("email");
+    const emailError = document.getElementById("email-error");
+
+    email.addEventListener("input", () => {
+      const valid = /^[^@]+@[^@]+\.[^@]+$/.test(email.value);
+      emailError.style.display = valid ? "none" : "block";
+      validateStep1();
+    });
+
+    function validateStep1() {
+      step1Next.disabled = !(username.value.length >= 5 && /^[^@]+@[^@]+\.[^@]+$/.test(email.value));
+    }
+
+    step1Next.addEventListener("click", () => {
+      document.getElementById("step2").classList.remove("hidden");
+    });
+
+    // Country → City dependency
+    const country = document.getElementById("country");
+    const city = document.getElementById("city");
+    const step2Next = document.getElementById("step2-next");
+
+    country.addEventListener("change", () => {
+      city.disabled = false;
+      city.innerHTML = `<option value="">Select...</option>`;
+
+      if (country.value === "US") {
+        city.innerHTML += `<option>New York</option><option>San Francisco</option>`;
+      } else if (country.value === "CA") {
+        city.innerHTML += `<option>Toronto</option><option>Vancouver</option>`;
+      }
+
+      validateStep2();
+    });
+
+    city.addEventListener("change", validateStep2);
+
+    function validateStep2() {
+      step2Next.disabled = !(country.value && city.value);
+    }
+
+    step2Next.addEventListener("click", () => {
+      document.getElementById("step3").classList.remove("hidden");
+
+      // Delayed element appears after 2 seconds
+      setTimeout(() => {
+        document.getElementById("delayed-section").classList.remove("hidden");
+      }, 2000);
+    });
+
+    // Auto-complete
+    const searchBox = document.getElementById("search-box");
+    const suggestions = document.getElementById("suggestions");
+
+    const languages = ["JavaScript", "Python", "Java", "C#", "Ruby", "TypeScript", "Go"];
+
+    searchBox.addEventListener("input", () => {
+      const val = searchBox.value.toLowerCase();
+      suggestions.innerHTML = "";
+      if (!val) {
+        suggestions.classList.add("hidden");
+        return;
+      }
+
+      const filtered = languages.filter(l => l.toLowerCase().includes(val));
+      suggestions.classList.remove("hidden");
+
+      filtered.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        li.onclick = () => {
+          searchBox.value = item;
+          suggestions.classList.add("hidden");
+        };
+        suggestions.appendChild(li);
+      });
+    });
+
+    // Shadow DOM
+    const shadowHost = document.getElementById("shadow-host");
+    const shadow = shadowHost.attachShadow({ mode: "open" });
+
+    shadow.innerHTML = `
+      <style>
+        label { font-weight: bold; }
+        input { margin-top: 5px; padding: 5px; }
+      </style>
+      <label>Shadow DOM Input:</label>
+      <input id="shadow-input" type="text">
+    `;
+</script>
+
 </body>
 </html>

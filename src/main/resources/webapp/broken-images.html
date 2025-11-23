@@ -1,9 +1,28 @@
 <!DOCTYPE html>
-<html>
-<head><title>Broken Images</title></head>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Broken Images - Advanced</title><style>body{font-family:Arial;margin:20px}img{width:160px;height:90px;object-fit:cover;margin:6px;border:1px solid #ddd}</style></head>
 <body>
-<h2>Broken Images</h2>
-<img id="goodImg" src="/logo.png">
-<img id="brokenImg" src="/not-existing.png">
+<h1>Broken Images</h1>
+<img id="good" src="https://via.placeholder.com/160x90.png?text=OK" alt="good">
+<img id="broken1" src="/non-existent1.png" alt="broken1">
+<img id="broken2" src="/non-existent2.png" alt="broken2">
+<p id="img-status"></p>
+
+<script>
+    const imgs = Array.from(document.querySelectorAll('img'));
+    let status = '';
+    imgs.forEach(img => {
+      img.addEventListener('load', ()=> { status += img.id + ':ok; '; document.getElementById('img-status').textContent = status;});
+      img.addEventListener('error', ()=> { status += img.id + ':err; '; document.getElementById('img-status').textContent = status;});
+    });
+
+    window.__testHelpers = {
+      snapshotStatus: ()=> document.getElementById('img-status').textContent,
+      checkNaturalWidth: (id)=> {
+        const el = document.getElementById(id);
+        return el ? el.naturalWidth : 0;
+      }
+    };
+</script>
 </body>
 </html>
